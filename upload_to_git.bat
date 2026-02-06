@@ -38,7 +38,7 @@ echo.
 
 :: 4. 关联远程仓库
 echo [4/5] 关联远程仓库
-echo https://github.com/wthdyfg/PC_control_wifi_595_apt0316_gui.git (例如 https://github.com/wthdyfg/PC_control_wifi_595_apt0316_gui.git)
+echo https://github.com/wthdyfg/PC_control_wifi_595_apt0316_gui (例如 https://github.com/wthdyfg/PC_control_wifi_595_apt0316_gui.git)
 echo 如果只想本地管理，直接按回车跳过。
 set /p REMOTE_URL="远程仓库地址: "
 

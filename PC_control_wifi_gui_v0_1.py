@@ -19,6 +19,7 @@ class WifiControlGUI:
         
         self.sock = None
         self.is_connected = False
+        self.is_programming = False
         
         # 存储 48 个变量 (0 或 1)
         self.bit_vars = [] 
@@ -356,6 +357,22 @@ class WifiControlGUI:
             # 获取该位的状态
             idx = chip_index * BITS_PER_CHIP + bit_index
             if self.bit_vars[idx].get() == 1:
+                # --- 防并发与强制发送逻辑 ---
+                if getattr(self, 'is_programming', False):
+                    self.log("提示: 上一次烧录任务尚未完成，忽略本次触发")
+                    return
+
+                # 必须已连接才能烧录
+                if not self.is_connected:
+                    messagebox.showwarning("操作失败", "设备未连接，无法触发烧录！")
+                    return
+
+                # 无论是否勾选自动发送，触发烧录前都强制发送一次数据
+                # 确保继电器状态绝对正确，并在日志中留下记录
+                self.log("提示: 准备烧录，强制同步设备状态...")
+                self.send_data()
+                
+                self.is_programming = True
                 self.trigger_programmer()
 
     def trigger_programmer(self):
@@ -507,8 +524,17 @@ class WifiControlGUI:
             except Exception as e:
                 self.root.after(0, lambda: self.log(f"自动化错误: {e}"))
 
+        # 包装器：处理延时和标志位重置
+        def _wrapper():
+            try:
+                # 延时 0.5s 等待硬件继电器吸合
+                time.sleep(0.5)
+                _run()
+            finally:
+                self.is_programming = False
+
         # 在独立线程中运行，避免卡住 GUI
-        threading.Thread(target=_run, daemon=True).start()
+        threading.Thread(target=_wrapper, daemon=True).start()
 
     def set_chip_bits(self, chip_index, value):
         start_index = chip_index * BITS_PER_CHIP

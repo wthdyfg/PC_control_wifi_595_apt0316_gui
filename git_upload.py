@@ -82,7 +82,7 @@ def main():
     if not success or not status:
         print("没有检测到新的更改，跳过提交。")
     else:
-        success, msg = run_git_command(git_exe, ["commit", "-m", "Initial commit: 项目初始化 (由 Trae 助手生成)"])
+        success, msg = run_git_command(git_exe, ["commit", "-m", "Initial commit"])
         if success:
             print("代码提交成功。")
         else:
