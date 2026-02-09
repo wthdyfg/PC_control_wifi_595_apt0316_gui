@@ -104,6 +104,9 @@ class WifiControlGUI:
         self.auto_send_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(action_frame, text="自动发送", variable=self.auto_send_var).pack(side="left", padx=10)
         
+        self.auto_program_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(action_frame, text="自动烧录", variable=self.auto_program_var).pack(side="left", padx=10)
+        
         ttk.Button(action_frame, text="立即发送数据", command=self.send_data).pack(side="left", padx=10)
         ttk.Button(action_frame, text="全选", command=self.select_all).pack(side="left", padx=5)
         ttk.Button(action_frame, text="全清", command=self.clear_all).pack(side="left", padx=5)
@@ -357,6 +360,10 @@ class WifiControlGUI:
             # 获取该位的状态
             idx = chip_index * BITS_PER_CHIP + bit_index
             if self.bit_vars[idx].get() == 1:
+                # 检查是否开启了自动烧录
+                if not self.auto_program_var.get():
+                    return
+
                 # --- 防并发与强制发送逻辑 ---
                 if getattr(self, 'is_programming', False):
                     self.log("提示: 上一次烧录任务尚未完成，忽略本次触发")
